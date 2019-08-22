@@ -26,8 +26,6 @@
  */
 #define PROS_USE_SIMPLE_NAMES
 
-// project header files (order specific)
-#include "api.h"
 #include "pros/apix.h"
 #include "mbdl/api.h"
 
