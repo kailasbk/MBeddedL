@@ -1,0 +1,7 @@
+BasedOnStyle: WebKit
+IndentWidth: 4
+PointerAlignment: Left
+SortIncludes: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
