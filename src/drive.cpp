@@ -25,11 +25,13 @@ void mbdl::drive::create(double w, devices::Out* l, devices::Out* r, devices::In
 
 uint8_t mbdl::drive::mode = MANUAL;
 char* mbdl::drive::buffer = new char[64];
+pros::Mutex mbdl::drive::command;
 
 void mbdl::drive::controlTask(void* params)
 {
     double dL = 0, dR = 0, dS = 0, L = 0, R = 0, S = 0, dTheta = 0;
     while (true) {
+        command.take(TIMEOUT_MAX); // wait for/take mutex
         /**** TRACKING CODE ****/
         {
             // calculates distance traveled in last cycle
@@ -72,6 +74,7 @@ void mbdl::drive::controlTask(void* params)
             }
             // do nothing if in manual mode
         }
+        command.give(); // release mutex
         pros::delay(10);
     }
 }
@@ -90,27 +93,35 @@ void mbdl::drive::arcade(double pwr, double turn)
 
 void mbdl::drive::turn(double goal)
 {
+    command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = _TURN_;
     buffer[1] = goal;
+    command.give(); // release mutex
 }
 
 void mbdl::drive::arc(double angle, double radius)
 {
+    command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = _ARC_;
     buffer[1] = angle;
     buffer[1 + sizeof(double)] = radius;
+    command.give(); // release mutex
 }
 
 void mbdl::drive::line(double distance)
 {
+    command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = _LINE_;
     buffer[1] = distance;
+    command.give(); // release mutex
 }
 
 void mbdl::drive::to(mbdl::math::Vector goal)
 {
+    command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = _TO_;
     *(mbdl::math::Vector*)(buffer + 1) = goal;
+    command.give(); // release mutex
 }
 
 bool mbdl::drive::isSettled()

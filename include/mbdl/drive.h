@@ -30,6 +30,7 @@ extern uint8_t mode;
 #define _LINE_ 2
 #define _TO_ 3
 extern char* buffer;
+extern pros::Mutex command;
 
 /**
  * Task for the tracking and drive control
