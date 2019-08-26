@@ -19,16 +19,21 @@ extern double width;
 /* 2x2 Transformation Matrix */
 extern math::Matrix transformation;
 
-/**** MODE TYPE MACROS ****/
-#define AUTO 0
-#define MANUAL 1
-extern uint8_t mode;
+/**** BUFFER MODE MACROS ****/
+#define TANK 0
+#define ARCADE 1
+#define TURN 2
+#define ARC 3
+#define LINE 4
+#define TO 5
 
-/**** BUFFER TYPE MACROS ****/
-#define _TURN_ 0
-#define _ARC_ 1
-#define _LINE_ 2
-#define _TO_ 3
+/***** EXPLANATION OF BUFFER SYSTEM ***
+ * 0: the mode of the drive train
+ * 	manual: drive takes direct power instructions in tank or arcade
+ * 	others: drive determived power from positional instructions
+ * 1+: the data send along with the command
+ * the buffer is just a blank slate of 64 bytes of data which can be used however
+ */
 extern char* buffer;
 extern pros::Mutex command;
 

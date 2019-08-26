@@ -23,13 +23,14 @@ void mbdl::drive::create(double w, devices::Out* l, devices::Out* r, devices::In
     pros::Task tracking(mbdl::drive::controlTask);
 }
 
-uint8_t mbdl::drive::mode = MANUAL;
 char* mbdl::drive::buffer = new char[64];
 pros::Mutex mbdl::drive::command;
 
 void mbdl::drive::controlTask(void* params)
 {
+    buffer[0] = TANK;
     double dL = 0, dR = 0, dS = 0, L = 0, R = 0, S = 0, dTheta = 0;
+    double prevL = 0, prevR = 0, powerL = 0, powerR = 0;
     while (true) {
         command.take(TIMEOUT_MAX); // wait for/take mutex
         /**** TRACKING CODE ****/
@@ -69,10 +70,39 @@ void mbdl::drive::controlTask(void* params)
         }
         /**** MOTION CODE ****/
         {
-            if (mode == AUTO) {
-                // TODO: implement this code
+            /**** DETERMINATION OF DRIVE POWER ****/
+            if (buffer[0] > ARCADE) {
+                // determine the value of powerL and powerR based on mode
+            } else if (buffer[0] == TANK) {
+                powerL = buffer[1];
+                powerR = buffer[2];
+            } else if (buffer[0] == ARCADE) {
+                powerL = buffer[1] - buffer[2];
+                powerR = buffer[1] + buffer[2];
             }
-            // do nothing if in manual mode
+
+            /**** SLEW RATE CONTROL OF DRIVE ****/
+            if (powerL - prevL > .005) { // TODO: detemine slew value
+                left->set(prevL + .005);
+                prevL = prevL + .005;
+            } else if (powerL - prevL < -.005) {
+                left->set(prevL - .005);
+                prevL = prevL - .005;
+            } else {
+                left->set(powerL);
+                prevL = powerL;
+            }
+
+            if (powerR - prevR > .005) { // TODO: detemine slew value
+                right->set(prevR + .005);
+                prevR = prevR + .005;
+            } else if (powerR - prevR < -.005) {
+                right->set(prevR - .005);
+                prevR = prevR - .005;
+            } else {
+                right->set(powerR);
+                prevR = powerR;
+            }
         }
         command.give(); // release mutex
         pros::delay(10);
@@ -81,20 +111,26 @@ void mbdl::drive::controlTask(void* params)
 
 void mbdl::drive::tank(double l, double r)
 {
-    left->set(l);
-    right->set(r);
+    command.take(TIMEOUT_MAX); // wait for/take mutex
+    buffer[0] = TANK;
+    buffer[1] = l;
+    buffer[2] = r;
+    command.give(); // release mutex
 }
 
 void mbdl::drive::arcade(double pwr, double turn)
 {
-    left->set(pwr - turn);
-    right->set(pwr + turn);
+    command.take(TIMEOUT_MAX); // wait for/take mutex
+    buffer[0] = ARCADE;
+    buffer[1] = pwr;
+    buffer[2] = turn;
+    command.give(); // release mutex
 }
 
 void mbdl::drive::turn(double goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = _TURN_;
+    buffer[0] = TURN;
     buffer[1] = goal;
     command.give(); // release mutex
 }
@@ -102,7 +138,7 @@ void mbdl::drive::turn(double goal)
 void mbdl::drive::arc(double angle, double radius)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = _ARC_;
+    buffer[0] = ARC;
     buffer[1] = angle;
     buffer[1 + sizeof(double)] = radius;
     command.give(); // release mutex
@@ -111,7 +147,7 @@ void mbdl::drive::arc(double angle, double radius)
 void mbdl::drive::line(double distance)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = _LINE_;
+    buffer[0] = LINE;
     buffer[1] = distance;
     command.give(); // release mutex
 }
@@ -119,7 +155,7 @@ void mbdl::drive::line(double distance)
 void mbdl::drive::to(mbdl::math::Vector goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = _TO_;
+    buffer[0] = TO;
     *(mbdl::math::Vector*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
