@@ -1,7 +1,7 @@
 #ifndef _MBDL_MATH_H_
 #define _MBDL_MATH_H_
 
-#include "main.h"
+#include "../api.h"
 
 #define PI 3.14159265
 
@@ -40,7 +40,7 @@ public:
 	 * 
 	 * @param size the dimensions of the Vector
 	 */
-    Vector(uint8_t size);
+    Vector(std::uint8_t size);
 
     /**
 	 * Operator for adding two Vectors
@@ -72,13 +72,13 @@ public:
 	 * @param i the index of the element to access
 	 * @return the i-th indexed element
 	 */
-    double& operator[](uint8_t i);
+    double& operator[](std::uint8_t i);
 };
 
 class Matrix {
 public:
     double** data;
-    uint8_t rows, columns;
+    std::uint8_t rows, columns;
 
     /**
 	 * Creates the Matrix of specified size
@@ -86,7 +86,7 @@ public:
 	 * @param height the number of rows in the Matrix
 	 * @param width the number of columns in the Matrix
 	 */
-    Matrix(uint8_t height, uint8_t width);
+    Matrix(std::uint8_t height, std::uint8_t width);
 
     /**
 	 * Operator for multiplying a Matrix by a Vector
@@ -102,7 +102,7 @@ public:
 	 * @param i the index of the row being accessed
 	 * @return the pointer to the i-th row
 	 */
-    double* operator[](uint8_t i);
+    double* operator[](std::uint8_t i);
 };
 }
 

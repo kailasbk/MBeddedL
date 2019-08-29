@@ -1,4 +1,4 @@
-#include "main.h"
+#include "mbdl/math.h"
 
 double mbdl::math::equiv(double angle)
 {
@@ -19,7 +19,7 @@ double mbdl::math::RtoD(double angle)
     return angle * 180 / PI; // return the radians in degrees
 }
 
-mbdl::math::Matrix::Matrix(uint8_t height, uint8_t width)
+mbdl::math::Matrix::Matrix(std::uint8_t height, std::uint8_t width)
 {
     rows = height; // set variable rows to height
     columns = width; // set variable columns to width
@@ -47,12 +47,12 @@ mbdl::math::Vector mbdl::math::Matrix::operator*(Vector const& other)
     }
 }
 
-double* mbdl::math::Matrix::operator[](uint8_t i)
+double* mbdl::math::Matrix::operator[](std::uint8_t i)
 {
     return this->data[i]; // return the pointer to the i-th row
 }
 
-mbdl::math::Vector::Vector(uint8_t size)
+mbdl::math::Vector::Vector(std::uint8_t size)
 {
     this->size = size; // set variable size
     data = new double[size]; // allocate an size-large array of doubles and set data to their address
@@ -96,7 +96,7 @@ mbdl::math::Vector mbdl::math::Vector::operator*(double const& scale)
     return vec; // return the vector
 }
 
-double& mbdl::math::Vector::operator[](uint8_t i)
+double& mbdl::math::Vector::operator[](std::uint8_t i)
 {
     return data[i]; // return a reference to the i-th double
 }

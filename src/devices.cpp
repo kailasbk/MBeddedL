@@ -1,4 +1,5 @@
-#include "main.h"
+#include "api.h"
+#include "mbdl/devices.h"
 
 mbdl::devices::Motor::Motor(int8_t port)
 {

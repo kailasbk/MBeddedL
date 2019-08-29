@@ -1,4 +1,4 @@
-#include "main.h"
+#include "mbdl/drive.h"
 
 mbdl::math::Vector mbdl::drive::position(2);
 mbdl::math::Vector mbdl::drive::displacement(2);

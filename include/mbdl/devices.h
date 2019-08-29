@@ -1,7 +1,7 @@
 #ifndef _MBDL_DEVICES_H_
 #define _MBDL_DEVICES_H_
 
-#include "main.h"
+#include "../api.h"
 
 namespace mbdl::devices {
 class In {
@@ -41,7 +41,7 @@ public:
 	 * 
 	 * @param port the motor port, with negative numbers denoting a reversed motor
 	 */
-    Motor(int8_t port);
+    Motor(std::int8_t port);
 
     /**
 	 * Returns a pointer to the pros::Motor object for additional functionality
@@ -56,7 +56,7 @@ public:
 class MotorGroup : public Out {
 private:
     pros::Motor** motors;
-    uint8_t num;
+    std::uint8_t num;
 
 public:
     /**
@@ -65,7 +65,7 @@ public:
 	 * @param port the array of motor ports, with negative numbers denoting a reversed motor
 	 * @param num the number of motors in the MotorGroup
 	 */
-    MotorGroup(int8_t port[], uint8_t num);
+    MotorGroup(std::int8_t port[], std::uint8_t num);
 
     /**
 	 * Returns a pointer to the specified pros::Motor object for additional functionality
@@ -73,14 +73,14 @@ public:
 	 * @param i the index of the motor in the group
 	 * @return the pointer to the pros::Motor object
 	 */
-    pros::Motor* raw(uint8_t i);
+    pros::Motor* raw(std::uint8_t i);
 
     void set(double pwr);
 };
 
 class Potentiometer : public In {
 private:
-    uint8_t port;
+    std::uint8_t port;
     double scale, shift;
 
 public:
@@ -91,7 +91,7 @@ public:
 	 * @param scale the scale for the get() value
 	 * @param shift the shift for the get() value
 	 */
-    Potentiometer(uint8_t port, double scale, double shift);
+    Potentiometer(std::uint8_t port, double scale, double shift);
 
     double get();
 
@@ -111,7 +111,7 @@ public:
 	 * @param two the ADI port fot the second wire
 	 * @param scale the scale for the get() value
 	 */
-    Encoder(uint8_t one, uint8_t two, double scale);
+    Encoder(std::uint8_t one, std::uint8_t two, double scale);
 
     double get();
 

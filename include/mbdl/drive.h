@@ -1,7 +1,9 @@
 #ifndef _MBDL_DRIVE_H_
 #define _MBDL_DRIVE_H_
 
-#include "main.h"
+#include "../api.h"
+#include "mbdl/devices.h"
+#include "mbdl/math.h"
 
 namespace mbdl::drive {
 /**** Robot Position Variables ****/

@@ -26,8 +26,8 @@
  */
 #define PROS_USE_SIMPLE_NAMES
 
-#include "pros/apix.h"
 #include "mbdl/api.h"
+#include "pros/apix.h"
 
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
