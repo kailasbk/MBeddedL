@@ -43,6 +43,11 @@ public:
     Vector(std::uint8_t size);
 
     /**
+	 * Deletes the Vector and frees memory
+	 */
+    ~Vector();
+
+    /**
 	 * Operator for adding two Vectors
 	 * 
 	 * @param other the const reference to the second addend
@@ -87,6 +92,11 @@ public:
 	 * @param width the number of columns in the Matrix
 	 */
     Matrix(std::uint8_t height, std::uint8_t width);
+
+    /**
+	 * Deletes the Matrix and frees memory
+	 */
+    ~Matrix();
 
     /**
 	 * Operator for multiplying a Matrix by a Vector
