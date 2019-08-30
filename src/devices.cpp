@@ -1,5 +1,5 @@
-#include "api.h"
 #include "mbdl/devices.h"
+#include "api.h"
 
 mbdl::devices::Motor::Motor(int8_t port)
 {
@@ -34,6 +34,25 @@ mbdl::devices::MotorGroup::MotorGroup(int8_t port[], uint8_t num)
             rev = false; // reverse is false
         }
         motors[i] = new pros::Motor(port[i], rev); // allocate pros::Motor and store address
+    }
+}
+
+mbdl::devices::MotorGroup::MotorGroup(std::initializer_list<std::int8_t> list)
+{
+    num = list.size();
+    bool rev; // boolean to track motor reversal
+    motors = new pros::Motor*[num]; // allocate an array of pros::Motor pointers
+    std::initializer_list<std::int8_t>::iterator i;
+    std::uint8_t mtr_num = 0;
+    for (i = list.begin(); i < list.end(); i++) { // for each motor
+        if (*i < 0) { // if port in negative
+            rev = true; // reverse is true
+            motors[mtr_num] = new pros::Motor(*i * -1, rev); // allocate pros::Motor and store address
+        } else {
+            rev = false; // reverse is false
+            motors[mtr_num] = new pros::Motor(*i, rev); // allocate pros::Motor and store address
+        }
+        mtr_num++;
     }
 }
 

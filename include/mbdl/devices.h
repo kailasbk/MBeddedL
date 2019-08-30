@@ -68,6 +68,13 @@ public:
     MotorGroup(std::int8_t port[], std::uint8_t num);
 
     /**
+	 * Creates a MotorGroup object on the specified ports
+	 * 
+	 * @param list the list of motor ports
+	 */
+    MotorGroup(std::initializer_list<std::int8_t> list);
+
+    /**
 	 * Returns a pointer to the specified pros::Motor object for additional functionality
 	 * 
 	 * @param i the index of the motor in the group

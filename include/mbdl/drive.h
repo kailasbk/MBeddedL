@@ -2,6 +2,7 @@
 #define _MBDL_DRIVE_H_
 
 #include "../api.h"
+#include "mbdl/controllers.h"
 #include "mbdl/devices.h"
 #include "mbdl/math.h"
 
@@ -55,6 +56,9 @@ void controlTask(void* params);
  * @param enc the array of pointers to the encoder objects
  */
 void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3]);
+
+// slew rate value: how much the motor power can change in a second
+#define SLEW_RATE 1
 
 /**
  * Sets the drivetrain using tank control

@@ -29,6 +29,8 @@ pros::Mutex mbdl::drive::command;
 void mbdl::drive::controlTask(void* params)
 {
     buffer[0] = TANK;
+    std::uint32_t timing = pros::millis(), elapsed = 0;
+    double slewPower = 0;
     double dL = 0, dR = 0, dS = 0, L = 0, R = 0, S = 0, dTheta = 0;
     double prevL = 0, prevR = 0, powerL = 0, powerR = 0;
     while (true) {
@@ -38,7 +40,11 @@ void mbdl::drive::controlTask(void* params)
             // calculates distance traveled in last cycle
             dL = encoders[0]->get() - L;
             dR = encoders[1]->get() - R;
-            dS = encoders[2]->get() - S;
+            if (encoders[2] != nullptr) {
+                dS = encoders[2]->get() - S;
+            } else {
+                dS = 0;
+            }
 
             // update absolute counts
             L += dL;
@@ -51,7 +57,7 @@ void mbdl::drive::controlTask(void* params)
             // update absolute angle
             theta += dTheta;
 
-            // update heading vector
+            // update heading vector for average heading
             heading[0] = cos(theta - (dTheta / 2));
             heading[1] = sin(theta - (dTheta / 2));
 
@@ -67,12 +73,34 @@ void mbdl::drive::controlTask(void* params)
 
             // update position with translated displacement
             position = position + (transformation * displacement);
+
+            // update heading to reflect current heading
+            heading[0] = cos(theta);
+            heading[1] = sin(theta);
         }
         /**** MOTION CODE ****/
         {
+            // determine time since last run (for slew rate and motion profiling)
+            elapsed = pros::millis() - timing;
+            timing += elapsed;
+
             /**** DETERMINATION OF DRIVE POWER ****/
             if (buffer[0] > ARCADE) {
-                // determine the value of powerL and powerR based on mode
+                switch (buffer[0]) {
+                case TURN:
+                    // turning algorithm
+                    break;
+                case ARC:
+                    // arcing algorithm
+                    break;
+                case LINE:
+                    double dist = sqrt(pow((*(math::Vector*)(buffer + 1))[0] - position[0], 2) + pow((*(math::Vector*)(buffer + 1))[1] - position[1], 2));
+                    powerL = powerR = dist;
+                    break;
+                case TO:
+                    // to point algorithm
+                    break;
+                }
             } else if (buffer[0] == TANK) {
                 powerL = buffer[1];
                 powerR = buffer[2];
@@ -82,23 +110,25 @@ void mbdl::drive::controlTask(void* params)
             }
 
             /**** SLEW RATE CONTROL OF DRIVE ****/
-            if (powerL - prevL > .005) { // TODO: detemine slew value
-                left->set(prevL + .005);
-                prevL = prevL + .005;
-            } else if (powerL - prevL < -.005) {
-                left->set(prevL - .005);
-                prevL = prevL - .005;
+            slewPower = (elapsed / 1000.0) * SLEW_RATE;
+
+            if (powerL - prevL > slewPower) {
+                left->set(prevL + slewPower);
+                prevL = prevL + slewPower;
+            } else if (powerL - prevL < -slewPower) {
+                left->set(prevL - slewPower);
+                prevL = prevL - slewPower;
             } else {
                 left->set(powerL);
                 prevL = powerL;
             }
 
-            if (powerR - prevR > .005) { // TODO: detemine slew value
-                right->set(prevR + .005);
-                prevR = prevR + .005;
-            } else if (powerR - prevR < -.005) {
-                right->set(prevR - .005);
-                prevR = prevR - .005;
+            if (powerR - prevR > slewPower) {
+                right->set(prevR + slewPower);
+                prevR = prevR + slewPower;
+            } else if (powerR - prevR < -slewPower) {
+                right->set(prevR - slewPower);
+                prevR = prevR - slewPower;
             } else {
                 right->set(powerR);
                 prevR = powerR;
@@ -148,7 +178,10 @@ void mbdl::drive::line(double distance)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = LINE;
-    buffer[1] = distance;
+    math::Vector goal(2);
+    goal[0] = position[0] + (heading[0] * distance);
+    goal[1] = position[1] + (heading[1] * distance);
+    *(math::Vector*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 
@@ -156,7 +189,7 @@ void mbdl::drive::to(mbdl::math::Vector goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = TO;
-    *(mbdl::math::Vector*)(buffer + 1) = goal;
+    *(math::Vector*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 
