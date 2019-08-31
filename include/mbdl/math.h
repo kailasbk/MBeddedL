@@ -32,9 +32,6 @@ double DtoR(double angle);
 
 class Vector {
 public:
-    double* data;
-    std::uint8_t size;
-
     /**
 	 * Creates the Vector of a certain dimension
 	 * 
@@ -78,13 +75,16 @@ public:
 	 * @return the i-th indexed element
 	 */
     double& operator[](std::uint8_t i);
+
+private:
+    double* data;
+    std::uint8_t size;
+
+    friend class Matrix;
 };
 
 class Matrix {
 public:
-    double** data;
-    std::uint8_t rows, columns;
-
     /**
 	 * Creates the Matrix of specified size
 	 * 
@@ -113,6 +113,10 @@ public:
 	 * @return the pointer to the i-th row
 	 */
     double* operator[](std::uint8_t i);
+
+private:
+    double** data;
+    std::uint8_t rows, columns;
 };
 }
 

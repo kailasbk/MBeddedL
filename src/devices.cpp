@@ -1,7 +1,8 @@
 #include "mbdl/devices.h"
 #include "api.h"
 
-mbdl::devices::Motor::Motor(int8_t port)
+namespace mbdl::devices {
+Motor::Motor(int8_t port)
 {
     bool rev = false; // by default motor isn't reversed
     if (port < 0) { // if port in negative
@@ -11,17 +12,17 @@ mbdl::devices::Motor::Motor(int8_t port)
     motor = new pros::Motor(port, rev); // contruct the new pros::Motor on the heap and store the address
 }
 
-pros::Motor* mbdl::devices::Motor::raw()
+pros::Motor* Motor::raw()
 {
     return motor; // return the pointer to the pros::Motor object
 }
 
-void mbdl::devices::Motor::set(double pwr)
+void Motor::set(double pwr)
 {
     motor->move_voltage(pwr * 12000); // set motor to pwr
 }
 
-mbdl::devices::MotorGroup::MotorGroup(int8_t port[], uint8_t num)
+MotorGroup::MotorGroup(int8_t port[], uint8_t num)
 {
     this->num = num;
     bool rev; // boolean to track motor reversal
@@ -37,7 +38,7 @@ mbdl::devices::MotorGroup::MotorGroup(int8_t port[], uint8_t num)
     }
 }
 
-mbdl::devices::MotorGroup::MotorGroup(std::initializer_list<std::int8_t> list)
+MotorGroup::MotorGroup(std::initializer_list<std::int8_t> list)
 {
     num = list.size();
     bool rev; // boolean to track motor reversal
@@ -56,19 +57,19 @@ mbdl::devices::MotorGroup::MotorGroup(std::initializer_list<std::int8_t> list)
     }
 }
 
-pros::Motor* mbdl::devices::MotorGroup::raw(uint8_t i)
+pros::Motor* MotorGroup::raw(uint8_t i)
 {
     return motors[i]; // return pointer to i-th motor
 }
 
-void mbdl::devices::MotorGroup::set(double pwr)
+void MotorGroup::set(double pwr)
 {
     for (int i = 0; i < num; i++) { // for each motor
         motors[i]->move_voltage(pwr * 12000); // set motor to pwr
     }
 }
 
-mbdl::devices::Potentiometer::Potentiometer(std::uint8_t port, double scale, double shift)
+Potentiometer::Potentiometer(std::uint8_t port, double scale, double shift)
 {
     // init all variables to specified values
     this->port = port;
@@ -76,54 +77,55 @@ mbdl::devices::Potentiometer::Potentiometer(std::uint8_t port, double scale, dou
     this->shift = shift;
 }
 
-double mbdl::devices::Potentiometer::get()
+double Potentiometer::get()
 {
     return (pros::c::adi_analog_read(port) * scale) + shift; // return the scale and shifted sensor value
 }
 
-double mbdl::devices::Potentiometer::raw()
+double Potentiometer::raw()
 {
     return pros::c::adi_analog_read(port); // return the raw sensor value
 }
 
-mbdl::devices::Encoder::Encoder(std::uint8_t one, std::uint8_t two, double scale)
+Encoder::Encoder(std::uint8_t one, std::uint8_t two, double scale)
 {
     enc = pros::c::adi_encoder_init(one, two, false); // initialize the encoder
     this->scale = scale; // set the scale
 }
 
-double mbdl::devices::Encoder::raw()
+double Encoder::raw()
 {
     return pros::c::adi_encoder_get(enc); // return the raw encoder value
 }
 
-double mbdl::devices::Encoder::get()
+double Encoder::get()
 {
     return pros::c::adi_encoder_get(enc) * scale; // return the scaled encoder value
 }
 
-void mbdl::devices::Encoder::reset()
+void Encoder::reset()
 {
     pros::c::adi_encoder_reset(enc); // reset the encoder
 }
 
-mbdl::devices::MotorEncoder::MotorEncoder(pros::Motor* mtr, double sc)
+MotorEncoder::MotorEncoder(pros::Motor* mtr, double sc)
 {
     motor = mtr;
     scale = sc;
 }
 
-double mbdl::devices::MotorEncoder::get()
+double MotorEncoder::get()
 {
     return motor->get_position() * scale;
 }
 
-double mbdl::devices::MotorEncoder::raw()
+double MotorEncoder::raw()
 {
     return motor->get_position();
 }
 
-void mbdl::devices::MotorEncoder::reset()
+void MotorEncoder::reset()
 {
     motor->tare_position();
+}
 }

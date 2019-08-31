@@ -1,6 +1,7 @@
 #include "mbdl/math.h"
 
-double mbdl::math::equiv(double angle)
+namespace mbdl::math {
+double equiv(double angle)
 {
     if (angle > 0) { // if angle is positive
         return angle - (2 * PI) * ((int)angle / (2 * PI)); // return the angle minus the closest multiple of 2PI
@@ -9,17 +10,17 @@ double mbdl::math::equiv(double angle)
     }
 }
 
-double mbdl::math::DtoR(double angle)
+double DtoR(double angle)
 {
     return angle * PI / 180; // return the degrees in radians
 }
 
-double mbdl::math::RtoD(double angle)
+double RtoD(double angle)
 {
     return angle * 180 / PI; // return the radians in degrees
 }
 
-mbdl::math::Vector::Vector(std::uint8_t size)
+Vector::Vector(std::uint8_t size)
 {
     this->size = size; // set variable size
     data = new double[size]; // allocate an size-large array of doubles and set data to their address
@@ -28,15 +29,15 @@ mbdl::math::Vector::Vector(std::uint8_t size)
     }
 }
 
-mbdl::math::Vector::~Vector()
+Vector::~Vector()
 {
     delete[] data;
 }
 
-mbdl::math::Vector mbdl::math::Vector::operator+(Vector const& other)
+Vector Vector::operator+(Vector const& other)
 {
     if (size == other.size) { // if vectors and same size, addition is possible
-        mbdl::math::Vector vec(this->size); // create a empty Vector
+        Vector vec(this->size); // create a empty Vector
         for (int i = 0; i < size; i++) { // for each row in the vector
             vec.data[i] = data[i] + other.data[i]; // set the value to the sum of the two vectors
         }
@@ -46,10 +47,10 @@ mbdl::math::Vector mbdl::math::Vector::operator+(Vector const& other)
     }
 }
 
-mbdl::math::Vector mbdl::math::Vector::operator-(Vector const& other)
+Vector Vector::operator-(Vector const& other)
 {
     if (size == other.size) { // if vectors and same size, subtraction is possible
-        mbdl::math::Vector vec(this->size); // create a empty Vector
+        Vector vec(this->size); // create a empty Vector
         for (int i = 0; i < size; i++) { // for each row in the vector
             vec.data[i] = data[i] - other.data[i]; // set the value to the difference of the two vectors
         }
@@ -59,21 +60,21 @@ mbdl::math::Vector mbdl::math::Vector::operator-(Vector const& other)
     }
 }
 
-mbdl::math::Vector mbdl::math::Vector::operator*(double const& scale)
+Vector Vector::operator*(double const& scale)
 {
-    mbdl::math::Vector vec(this->size); // create an empty Vector
+    Vector vec(this->size); // create an empty Vector
     for (int i = 0; i < size; i++) { // for each row in the vector
         vec.data[i] = data[i] * scale; // multiply the row value by the scale
     }
     return vec; // return the vector
 }
 
-double& mbdl::math::Vector::operator[](std::uint8_t i)
+double& Vector::operator[](std::uint8_t i)
 {
     return data[i]; // return a reference to the i-th double
 }
 
-mbdl::math::Matrix::Matrix(std::uint8_t height, std::uint8_t width)
+Matrix::Matrix(std::uint8_t height, std::uint8_t width)
 {
     rows = height; // set variable rows to height
     columns = width; // set variable columns to width
@@ -86,7 +87,7 @@ mbdl::math::Matrix::Matrix(std::uint8_t height, std::uint8_t width)
     }
 }
 
-mbdl::math::Matrix::~Matrix()
+Matrix::~Matrix()
 {
     for (int i = 0; i < rows; i++) {
         delete[] data[i];
@@ -94,10 +95,10 @@ mbdl::math::Matrix::~Matrix()
     delete[] data;
 }
 
-mbdl::math::Vector mbdl::math::Matrix::operator*(Vector const& other)
+Vector Matrix::operator*(Vector const& other)
 {
     if (columns == other.size) { // if matrix muliplication is possible
-        mbdl::math::Vector vec(other.size); // create an empty Vector
+        Vector vec(other.size); // create an empty Vector
         for (int i = 0; i < rows; i++) { // for all rows in the matrix
             for (int j = 0; j < columns; j++) { // for all columns in the row
                 vec[i] += other.data[j] * data[i][j]; // set the value to sum of the products
@@ -109,7 +110,8 @@ mbdl::math::Vector mbdl::math::Matrix::operator*(Vector const& other)
     }
 }
 
-double* mbdl::math::Matrix::operator[](std::uint8_t i)
+double* Matrix::operator[](std::uint8_t i)
 {
     return this->data[i]; // return the pointer to the i-th row
+}
 }

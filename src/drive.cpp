@@ -1,18 +1,19 @@
 #include "mbdl/drive.h"
 
-mbdl::math::Vector mbdl::drive::position(2);
-mbdl::math::Vector mbdl::drive::displacement(2);
-mbdl::math::Vector mbdl::drive::heading(2);
-double mbdl::drive::theta = 0;
+namespace mbdl::drive {
+math::Vector position(2);
+math::Vector displacement(2);
+math::Vector heading(2);
+double theta = 0;
 
-mbdl::devices::Out* mbdl::drive::left;
-mbdl::devices::Out* mbdl::drive::right;
-mbdl::devices::In* mbdl::drive::encoders[3];
-double mbdl::drive::width;
+devices::Out* left;
+devices::Out* right;
+devices::In* encoders[3];
+double width;
 
-mbdl::math::Matrix mbdl::drive::transformation(2, 2);
+math::Matrix transformation(2, 2);
 
-void mbdl::drive::create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3])
+void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3])
 {
     left = l;
     right = r;
@@ -20,13 +21,13 @@ void mbdl::drive::create(double w, devices::Out* l, devices::Out* r, devices::In
         encoders[i] = enc[i];
     }
     width = w;
-    pros::Task tracking(mbdl::drive::controlTask);
+    pros::Task tracking(controlTask);
 }
 
-char* mbdl::drive::buffer = new char[64];
-pros::Mutex mbdl::drive::command;
+char* buffer = new char[64];
+pros::Mutex command;
 
-void mbdl::drive::controlTask(void* params)
+void controlTask(void* params)
 {
     buffer[0] = TANK;
     std::uint32_t timing = pros::millis(), elapsed = 0;
@@ -94,8 +95,7 @@ void mbdl::drive::controlTask(void* params)
                     // arcing algorithm
                     break;
                 case LINE:
-                    double dist = sqrt(pow((*(math::Vector*)(buffer + 1))[0] - position[0], 2) + pow((*(math::Vector*)(buffer + 1))[1] - position[1], 2));
-                    powerL = powerR = dist;
+                    powerL = powerR = 0;
                     break;
                 case TO:
                     // to point algorithm
@@ -139,7 +139,7 @@ void mbdl::drive::controlTask(void* params)
     }
 }
 
-void mbdl::drive::tank(double l, double r)
+void tank(double l, double r)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = TANK;
@@ -148,7 +148,7 @@ void mbdl::drive::tank(double l, double r)
     command.give(); // release mutex
 }
 
-void mbdl::drive::arcade(double pwr, double turn)
+void arcade(double pwr, double turn)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = ARCADE;
@@ -157,15 +157,15 @@ void mbdl::drive::arcade(double pwr, double turn)
     command.give(); // release mutex
 }
 
-void mbdl::drive::turn(double goal)
+void turn(double goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = TURN;
-    buffer[1] = goal;
+    *(double*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 
-void mbdl::drive::arc(double angle, double radius)
+void arc(double angle, double radius)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = ARC;
@@ -174,7 +174,7 @@ void mbdl::drive::arc(double angle, double radius)
     command.give(); // release mutex
 }
 
-void mbdl::drive::line(double distance)
+void line(double distance)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = LINE;
@@ -185,7 +185,7 @@ void mbdl::drive::line(double distance)
     command.give(); // release mutex
 }
 
-void mbdl::drive::to(mbdl::math::Vector goal)
+void to(math::Vector goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = TO;
@@ -193,10 +193,11 @@ void mbdl::drive::to(mbdl::math::Vector goal)
     command.give(); // release mutex
 }
 
-bool mbdl::drive::isSettled()
+bool isSettled()
 {
     if (0) { // if some condition (not determined)
         return true;
     }
     return false;
+}
 }
