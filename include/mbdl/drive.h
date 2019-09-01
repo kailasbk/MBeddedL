@@ -8,10 +8,10 @@
 
 namespace mbdl::drive {
 /**** Robot Position Variables ****/
-extern math::Vector position;
+extern math::Vector<2> position;
 extern double theta;
-extern math::Vector displacement;
-extern math::Vector heading;
+extern math::Vector<2> displacement;
+extern math::Vector<2> heading;
 
 /**** Drivetrain Specification Variables ****/
 extern devices::Out* left;
@@ -20,7 +20,7 @@ extern devices::In* encoders[3];
 extern double width;
 
 /* 2x2 Transformation Matrix */
-extern math::Matrix transformation;
+extern math::Matrix<2, 2> transformation;
 
 /**** BUFFER MODE MACROS ****/
 #define TANK 0
@@ -103,7 +103,7 @@ void line(double distance);
  * 
  * @param goal the desired coordinates in inches
  */
-void to(math::Vector goal);
+void to(math::Vector<2> goal);
 
 /**
  * States whether the robot has come to rest

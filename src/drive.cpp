@@ -1,9 +1,9 @@
 #include "mbdl/drive.h"
 
 namespace mbdl::drive {
-math::Vector position(2);
-math::Vector displacement(2);
-math::Vector heading(2);
+math::Vector<2> position;
+math::Vector<2> displacement;
+math::Vector<2> heading;
 double theta = 0;
 
 devices::Out* left;
@@ -11,7 +11,7 @@ devices::Out* right;
 devices::In* encoders[3];
 double width;
 
-math::Matrix transformation(2, 2);
+math::Matrix<2, 2> transformation;
 
 void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3])
 {
@@ -178,18 +178,18 @@ void line(double distance)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = LINE;
-    math::Vector goal(2);
+    math::Vector<2> goal;
     goal[0] = position[0] + (heading[0] * distance);
     goal[1] = position[1] + (heading[1] * distance);
-    *(math::Vector*)(buffer + 1) = goal;
+    *(math::Vector<2>*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 
-void to(math::Vector goal)
+void to(math::Vector<2> goal)
 {
     command.take(TIMEOUT_MAX); // wait for/take mutex
     buffer[0] = TO;
-    *(math::Vector*)(buffer + 1) = goal;
+    *(math::Vector<2>*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 
