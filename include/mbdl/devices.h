@@ -2,6 +2,7 @@
 #define _MBDL_DEVICES_H_
 
 #include "../api.h"
+#include <memory>
 
 namespace mbdl::devices {
 class In {
@@ -33,7 +34,7 @@ public:
 
 class Motor : public Out {
 private:
-    pros::Motor* motor;
+    std::shared_ptr<pros::Motor> motor;
 
 public:
     /**
@@ -48,31 +49,43 @@ public:
 	 * 
 	 * @return the pointer to the pros::Motor object
 	 */
-    pros::Motor* raw();
+    std::shared_ptr<pros::Motor> raw();
 
+    /**
+	 * Sets the motor to specified power
+	 * 
+	 * @param pwr the power within [-1, 1] to set the output to
+	 */
     void set(double pwr);
 };
 
+template <int num>
 class MotorGroup : public Out {
 private:
-    pros::Motor** motors;
-    std::uint8_t num;
+    std::shared_ptr<pros::Motor> motors[num];
 
 public:
     /**
 	 * Creates a MotorGroup object on the specified ports
 	 * 
-	 * @param port the array of motor ports, with negative numbers denoting a reversed motor
-	 * @param num the number of motors in the MotorGroup
-	 */
-    MotorGroup(std::int8_t port[], std::uint8_t num);
-
-    /**
-	 * Creates a MotorGroup object on the specified ports
-	 * 
 	 * @param list the list of motor ports
 	 */
-    MotorGroup(std::initializer_list<std::int8_t> list);
+    MotorGroup(std::initializer_list<std::int8_t> list)
+    {
+        bool rev;
+        std::initializer_list<std::int8_t>::iterator i;
+        std::uint8_t mtr_num = 0;
+        for (i = list.begin(); i < list.end(); i++) {
+            if (*i < 0) {
+                rev = true;
+                motors[mtr_num] = std::make_shared<pros::Motor>(*i * -1, rev);
+            } else {
+                rev = false;
+                motors[mtr_num] = std::make_shared<pros::Motor>(*i, rev);
+            }
+            mtr_num++;
+        }
+    }
 
     /**
 	 * Returns a pointer to the specified pros::Motor object for additional functionality
@@ -80,9 +93,22 @@ public:
 	 * @param i the index of the motor in the group
 	 * @return the pointer to the pros::Motor object
 	 */
-    pros::Motor* raw(std::uint8_t i);
+    std::shared_ptr<pros::Motor> raw(std::uint8_t i)
+    {
+        return motors[i];
+    }
 
-    void set(double pwr);
+    /**
+	 * Sets the motors to specified power
+	 * 
+	 * @param pwr the power within [-1, 1] to set the output to
+	 */
+    void set(double pwr)
+    {
+        for (int i = 0; i < num; i++) {
+            motors[i]->move_voltage(pwr * 12000);
+        }
+    }
 };
 
 class Potentiometer : public In {
@@ -100,8 +126,18 @@ public:
 	 */
     Potentiometer(std::uint8_t port, double scale, double shift);
 
+    /**
+	 * Gets the scaled poteniometer data
+	 * 
+	 * @return the scaled poteniometer value
+	 */
     double get();
 
+    /**
+	 * Gets the raw poteniometer data
+	 * 
+	 * @return the raw potentiometer value in [0, 4095]
+	 */
     double raw();
 };
 
@@ -120,8 +156,18 @@ public:
 	 */
     Encoder(std::uint8_t one, std::uint8_t two, double scale);
 
+    /**
+	 * Gets the scaled encoder data
+	 * 
+	 * @return the scaled encoder value
+	 */
     double get();
 
+    /**
+	 * Gets the raw encoder data
+	 * 
+	 * @return the raw encoder value
+	 */
     double raw();
 
     /**
@@ -132,7 +178,7 @@ public:
 
 class MotorEncoder : public In {
 private:
-    pros::Motor* motor;
+    std::shared_ptr<pros::Motor> motor;
     double scale;
 
 public:
@@ -142,10 +188,20 @@ public:
 	 * @param mtr the pointer to the pros::Motor whose encoder is being used
 	 * @param sc the scale for the get() value
 	 */
-    MotorEncoder(pros::Motor* mtr, double sc);
+    MotorEncoder(std::shared_ptr<pros::Motor> mtr, double sc);
 
+    /**
+	 * Gets the scaled encoder data
+	 * 
+	 * @return the scaled encoder value
+	 */
     double get();
 
+    /**
+	 * Gets the raw encoder data
+	 * 
+	 * @return the raw encoder value
+	 */
     double raw();
 
     /**
