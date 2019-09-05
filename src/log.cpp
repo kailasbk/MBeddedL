@@ -138,25 +138,27 @@ void CSV::clear()
     file.open(path, std::fstream::out | std::fstream::in | std::fstream::trunc);
 }
 
-std::string scanln()
-{
-    char str[256];
-    std::cin.getline(str, 256);
-    return std::string(str);
-}
+inline namespace serial {
+    std::string scanln()
+    {
+        char str[256];
+        std::cin.getline(str, 256);
+        return std::string(str);
+    }
 
-void printfile(std::string path)
-{
-    std::fstream file(path);
-    file.seekg(0, file.end);
-    int length = file.tellg();
-    file.seekg(0, file.beg);
-    char* buffer = new char[length];
-    file.read(buffer, length);
-    std::cout << "<FILE>\n";
-    std::cout.write(buffer, length);
-    std::cout << "</FILE>\n";
+    void printfile(std::string path)
+    {
+        std::fstream file(path);
+        file.seekg(0, file.end);
+        int length = file.tellg();
+        file.seekg(0, file.beg);
+        char* buffer = new char[length];
+        file.read(buffer, length);
+        std::cout << "<FILE>\n";
+        std::cout.write(buffer, length);
+        std::cout << "</FILE>\n";
 
-    delete[] buffer;
+        delete[] buffer;
+    }
 }
 }

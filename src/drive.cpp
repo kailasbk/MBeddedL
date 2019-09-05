@@ -6,10 +6,10 @@ math::Vector<2> displacement;
 math::Vector<2> heading;
 double theta = 0;
 
-devices::Out* left;
-devices::Out* right;
-devices::In* encoders[3];
-double width;
+devices::Out* left = nullptr;
+devices::Out* right = nullptr;
+devices::In* encoders[3]{ nullptr, nullptr, nullptr };
+double width = 0;
 
 math::Matrix<2, 2> transformation;
 
@@ -86,22 +86,7 @@ void controlTask(void* params)
             timing += elapsed;
 
             /**** DETERMINATION OF DRIVE POWER ****/
-            if (buffer[0] > ARCADE) {
-                switch (buffer[0]) {
-                case TURN:
-                    // turning algorithm
-                    break;
-                case ARC:
-                    // arcing algorithm
-                    break;
-                case LINE:
-                    powerL = powerR = 0;
-                    break;
-                case TO:
-                    // to point algorithm
-                    break;
-                }
-            } else if (buffer[0] == TANK) {
+            if (buffer[0] == TANK) {
                 powerL = buffer[1];
                 powerR = buffer[2];
             } else if (buffer[0] == ARCADE) {

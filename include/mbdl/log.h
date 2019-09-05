@@ -46,7 +46,7 @@ public:
     /** 
 	 * Adds a line of CSV to the file
 	 * 
-	 * @param data the text data to write to the file
+	 * @param data the double array data to write to the file, ending with \n
 	 * @param close whether the file should be closed afterward
 	 */
     void add(double data[], bool close);
@@ -54,7 +54,7 @@ public:
     /** 
 	 * Adds multiple lines of CSV data to the file
 	 * 
-	 * @param data the text data to write to the file
+	 * @param data data the double 2D array data to write to the file, ending with \n
 	 * @param close whether the file should be closed afterward
 	 */
     void add(double* data[], bool close);
@@ -84,7 +84,9 @@ private:
     std::string path;
 };
 
-namespace serial {
+double end[1]{ '\n' };
+
+inline namespace serial {
     /**
 	 * Prints data into the stream
 	 * 

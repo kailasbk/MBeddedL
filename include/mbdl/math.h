@@ -9,7 +9,7 @@ namespace mbdl::math {
 /**
  * Scales angle in radians to equivalent angle from 0 to 2pi
  * 
- * @param the input angle in radians
+ * @param angle the input angle in radians
  * @return the equivalent angle in radians
  */
 double equiv(double angle);
@@ -17,7 +17,7 @@ double equiv(double angle);
 /**
  * Converts radians to degrees
  * 
- * @param the input angle in radians
+ * @param angle the input angle in radians
  * @return the converted angle in degrees
  */
 double RtoD(double angle);

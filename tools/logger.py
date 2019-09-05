@@ -1,7 +1,8 @@
-from flask import Flask
 import serial
 
-ser = serial.Serial("COM3")
+port = input("Enter port:")
+
+ser = serial.Serial(port)  # change based on computer used
 
 while True:
     print(ser.readline().decode("ascii"), end='')
