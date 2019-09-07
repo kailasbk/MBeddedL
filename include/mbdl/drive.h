@@ -30,16 +30,6 @@ extern math::Matrix<2, 2> transformation;
 #define LINE 4
 #define TO 5
 
-/***** EXPLANATION OF BUFFER SYSTEM ***
- * 0: the mode of the drive train
- * 	manual: drive takes direct power instructions in tank or arcade
- * 	others: drive determived power from positional instructions
- * 1+: the data send along with the command
- * the buffer is just a blank slate of 64 bytes of data which can be used however
- */
-extern char* buffer;
-extern pros::Mutex command;
-
 /**
  * Task for the tracking and drive control
  * 
@@ -58,7 +48,7 @@ void controlTask(void* params);
 void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3]);
 
 // slew rate value: how much the motor power can change in a second
-#define SLEW_RATE 1
+#define SLEW_RATE 2
 
 /**
  * Sets the drivetrain using tank control

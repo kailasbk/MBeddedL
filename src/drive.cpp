@@ -24,7 +24,7 @@ void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3])
     pros::Task tracking(controlTask);
 }
 
-char* buffer = new char[64];
+double* buffer = new double[64];
 pros::Mutex command;
 
 void controlTask(void* params)
@@ -39,12 +39,14 @@ void controlTask(void* params)
         /**** TRACKING CODE ****/
         {
             // calculates distance traveled in last cycle
-            dL = encoders[0]->get() - L;
-            dR = encoders[1]->get() - R;
+            if (encoders[0] != nullptr) {
+                dL = encoders[0]->get() - L;
+            }
+            if (encoders[1] != nullptr) {
+                dR = encoders[1]->get() - R;
+            }
             if (encoders[2] != nullptr) {
                 dS = encoders[2]->get() - S;
-            } else {
-                dS = 0;
             }
 
             // update absolute counts
@@ -94,30 +96,10 @@ void controlTask(void* params)
                 powerR = buffer[1] + buffer[2];
             }
 
-            /**** SLEW RATE CONTROL OF DRIVE ****/
-            slewPower = (elapsed / 1000.0) * SLEW_RATE;
-
-            if (powerL - prevL > slewPower) {
-                left->set(prevL + slewPower);
-                prevL = prevL + slewPower;
-            } else if (powerL - prevL < -slewPower) {
-                left->set(prevL - slewPower);
-                prevL = prevL - slewPower;
-            } else {
+            if (left != nullptr)
                 left->set(powerL);
-                prevL = powerL;
-            }
-
-            if (powerR - prevR > slewPower) {
-                right->set(prevR + slewPower);
-                prevR = prevR + slewPower;
-            } else if (powerR - prevR < -slewPower) {
-                right->set(prevR - slewPower);
-                prevR = prevR - slewPower;
-            } else {
+            if (right != nullptr)
                 right->set(powerR);
-                prevR = powerR;
-            }
         }
         command.give(); // release mutex
         pros::delay(10);
@@ -139,42 +121,6 @@ void arcade(double pwr, double turn)
     buffer[0] = ARCADE;
     buffer[1] = pwr;
     buffer[2] = turn;
-    command.give(); // release mutex
-}
-
-void turn(double goal)
-{
-    command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = TURN;
-    *(double*)(buffer + 1) = goal;
-    command.give(); // release mutex
-}
-
-void arc(double angle, double radius)
-{
-    command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = ARC;
-    buffer[1] = angle;
-    buffer[1 + sizeof(double)] = radius;
-    command.give(); // release mutex
-}
-
-void line(double distance)
-{
-    command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = LINE;
-    math::Vector<2> goal;
-    goal[0] = position[0] + (heading[0] * distance);
-    goal[1] = position[1] + (heading[1] * distance);
-    *(math::Vector<2>*)(buffer + 1) = goal;
-    command.give(); // release mutex
-}
-
-void to(math::Vector<2> goal)
-{
-    command.take(TIMEOUT_MAX); // wait for/take mutex
-    buffer[0] = TO;
-    *(math::Vector<2>*)(buffer + 1) = goal;
     command.give(); // release mutex
 }
 

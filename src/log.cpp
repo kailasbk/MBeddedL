@@ -138,6 +138,8 @@ void CSV::clear()
     file.open(path, std::fstream::out | std::fstream::in | std::fstream::trunc);
 }
 
+double end[1]{ '\n' };
+
 inline namespace serial {
     std::string scanln()
     {

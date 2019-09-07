@@ -1,20 +1,22 @@
 import serial
 
-port = input("Enter port:")
+port = input("Enter port: ")
 
 ser = serial.Serial(port)  # change port based on computer used
-line = ""
-filestring = ""
+line = b''
+filestring = b''
 
-while line != "<FILE>\n":  # wait until file data
+while line != b'<FILE>\n':  # wait until file data
     line = ser.readline()
+    print(line)
 
-while line != "</FILE>\n":
+while line != b'</FILE>\n':
     line = ser.readline()
-    filestring += line
-    print(ser.decode("ascii"), end='')
+    if line != b'</FILE>\n':
+        filestring += line
+    print("reading file: " + line.decode("ascii"), end='')
 
 # write stream contents to the file
 f = open("output.csv", "w")
-f.write(filestring)
+f.write(filestring.decode("ascii"))
 f.close()

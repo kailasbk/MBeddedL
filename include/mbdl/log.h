@@ -84,7 +84,7 @@ private:
     std::string path;
 };
 
-double end[1]{ '\n' };
+extern double end[1];
 
 inline namespace serial {
     /**
@@ -98,6 +98,12 @@ inline namespace serial {
         std::cout << data;
     }
 
+    template <>
+    void print<std::string>(std::string data)
+    {
+        std::cout << data.c_str();
+    }
+
     /**
 	 * Prints data into the stream and makes newline
 	 * 
@@ -106,7 +112,8 @@ inline namespace serial {
     template <typename T>
     void println(T data)
     {
-        std::cout << data << '\n';
+        print<T>(data);
+        print<char>('\n');
     }
 
     /**
