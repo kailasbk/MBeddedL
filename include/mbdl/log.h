@@ -1,5 +1,5 @@
-#ifndef _MBDL_LOGGING_H_
-#define _MBDL_LOGGING_H_
+#ifndef _MBDL_LOG_H_
+#define _MBDL_LOG_H_
 
 #include "pros/apix.h"
 #include <fstream>
@@ -34,14 +34,6 @@ public:
 	 * Saves all changes to the .csv file
 	 */
     void save();
-
-    /** 
-	 * Writes changes into the file buffer
-	 * 
-	 * @param data the text data to write to the file
-	 * @param close whether the file should be closed afterward
-	 */
-    void write(std::string data, bool close);
 
     /** 
 	 * Adds a line of CSV to the file
@@ -79,43 +71,20 @@ public:
 	 */
     void clear();
 
+    template <typename T>
+    std::ostream& operator<<(T input)
+    {
+        return file << input;
+    }
+
 private:
-    std::fstream file;
     std::string path;
+    std::fstream file;
 };
 
 extern double end[1];
 
 inline namespace serial {
-    /**
-	 * Prints data into the stream
-	 * 
-	 * @param data the data to write into the stream
-	 */
-    template <typename T>
-    void print(T data)
-    {
-        std::cout << data;
-    }
-
-    template <>
-    void print<std::string>(std::string data)
-    {
-        std::cout << data.c_str();
-    }
-
-    /**
-	 * Prints data into the stream and makes newline
-	 * 
-	 * @param data the data to write into the stream
-	 */
-    template <typename T>
-    void println(T data)
-    {
-        print<T>(data);
-        print<char>('\n');
-    }
-
     /**
 	 * Prints a file from storage into the stream
 	 * 
@@ -132,6 +101,8 @@ inline namespace serial {
 
     /**
 	 * Scans an item from the stream
+	 * 
+	 * @return the item
 	 */
     template <typename T>
     T scan()

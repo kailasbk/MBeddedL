@@ -5,7 +5,7 @@ CSV::CSV(std::string path, std::string headers)
 {
     this->path = path;
     file.open(path);
-    write(headers, false);
+    file << headers << '\n';
 }
 
 CSV::~CSV()
@@ -32,14 +32,6 @@ void CSV::save()
     file.flush();
 }
 
-void CSV::write(std::string data, bool close)
-{
-    file << data;
-    if (close) {
-        this->close();
-    }
-}
-
 void CSV::add(double data[], bool close)
 {
     std::string line = "";
@@ -50,8 +42,7 @@ void CSV::add(double data[], bool close)
         line += data[i];
         i++;
     }
-    line += '\n';
-    write(line, close);
+    file << line << '\n';
 }
 
 void CSV::add(double* data[], bool close)

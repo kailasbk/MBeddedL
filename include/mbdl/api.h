@@ -3,6 +3,7 @@
 
 #include "mbdl/controllers.h"
 #include "mbdl/devices.h"
+#include "mbdl/display.h"
 #include "mbdl/drive.h"
 #include "mbdl/log.h"
 #include "mbdl/math.h"
