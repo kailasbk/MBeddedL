@@ -42,7 +42,7 @@ void CSV::add(double data[], bool close)
         line += data[i];
         i++;
     }
-    file << line << '\n';
+    file << line + '\n';
 }
 
 void CSV::add(double* data[], bool close)
@@ -129,8 +129,6 @@ void CSV::clear()
     file.open(path, std::fstream::out | std::fstream::in | std::fstream::trunc);
 }
 
-double end[1]{ '\n' };
-
 inline namespace serial {
     std::string scanln()
     {
@@ -150,7 +148,7 @@ inline namespace serial {
         std::cout << "<FILE>\n";
         std::cout.write(buffer, length);
         std::cout << "</FILE>\n";
-
+        file.close();
         delete[] buffer;
     }
 }

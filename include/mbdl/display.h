@@ -95,6 +95,7 @@ public:
 	 * 
 	 * @param text the text for the internal label
 	 * @param func the callback function
+	 * @param parent the parent object to render inside of
 	 */
     Button(const char text[], lv_action_t func, lv_obj_t* parent = nullptr);
 
@@ -123,6 +124,7 @@ public:
 	 * 
 	 * @param text the text for the internal label
 	 * @param func the callback function
+	 * @param parent the parent object to render inside of
 	 */
     ButtonGroup(const char* map[], lv_btnm_action_t func, lv_obj_t* parent = nullptr);
 };
@@ -133,6 +135,7 @@ public:
 	 * Creates a label with the specified text
 	 * 
 	 * @param text the text for the label
+	 * @param parent the parent object to render inside of
 	 */
     Label(const char text[], lv_obj_t* parent = nullptr);
 
@@ -150,8 +153,9 @@ public:
 	 * Creates a tabview
 	 * 
 	 * @param list the list of the names of the tabs
+	 * @param parent the parent object to render inside of
 	 */
-    Tabs(std::initializer_list<const char*> list);
+    Tabs(std::initializer_list<const char*> list, lv_obj_t* parent = nullptr);
 
     /**
 	 * Returns a pointer to a tabs object
@@ -213,7 +217,7 @@ namespace lcd {
     /**
 	 * Registers a callback to the specified button
 	 * 
-	 * @param line the line to print the text
+	 * @param line the line to print the text (ex: LCD_BTN_LEFT)
 	 * @param text the text to print on the line
 	 */
     void setCallback(std::uint8_t btn, void (*func)());

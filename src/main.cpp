@@ -12,7 +12,16 @@ mbdl::devices::In* encoders[3] = {
 mbdl::display::Style style(&lv_style_pretty);
 
 mbdl::display::Tabs tabs{ "Monitor", "Odom", "File" };
-mbdl::display::Button btn("button", (lv_action_t)NULL, tabs[0]);
+mbdl::display::Label monitor("this is the monitor tab\n"
+                             "this is another line",
+    tabs[0]);
+
+lv_res_t filefunc(lv_obj_t* obj)
+{
+    mbdl::log::printfile("log.csv");
+}
+
+mbdl::display::Button filebtn("Send file", filefunc, tabs[2]);
 
 void initialize()
 {
@@ -23,28 +32,26 @@ void initialize()
 
 void autonomous()
 {
-    mbdl::log::CSV full("full.csv", "Time (s), Distance (in)");
+    mbdl::log::CSV log("log.csv", "Time (s), Distance (in)");
     mbdl::drive::tank(1, 1);
     int startTime = pros::millis();
-    double data[2]{ 0, 0 };
+    double data[3]{ 0, 0, '\n' };
     while (data[0] < 3000) {
         data[0] = pros::millis() - startTime;
         data[1] = encoders[0]->get();
-        full << data[0] << ',' << data[1] << '\n';
+        // log << data[0] << ',' << data[1] << '\n';
+        log.add(data, false);
         pros::delay(10);
     }
     mbdl::drive::tank(0, 0);
-    full << '\n';
-    full.close();
-    mbdl::log::printfile("full.csv");
+    log << '\n';
+    log.close();
 }
 
 void opcontrol()
 {
-    pros::Controller main(pros::E_CONTROLLER_MASTER);
     while (true) {
-        mbdl::drive::arcade(main.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) / 127.0, -main.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X) / 127.0);
-        std::cout << "coords " << encoders[0]->get() << ", " << encoders[1]->get() << '\n';
+        mbdl::drive::arcade(mbdl::controller::leftY(), -mbdl::controller::leftX());
         pros::delay(10);
     }
 }

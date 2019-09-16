@@ -91,9 +91,12 @@ void Label::setText(const char text[])
     lv_label_set_text(obj, text);
 }
 
-Tabs::Tabs(std::initializer_list<const char*> list)
+Tabs::Tabs(std::initializer_list<const char*> list, lv_obj_t* parent)
 {
-    obj = lv_tabview_create(lv_scr_act(), NULL);
+    if (parent == nullptr) {
+        parent = lv_scr_act();
+    }
+    obj = lv_tabview_create(parent, NULL);
     size = list.size();
     tabs = new lv_obj_t*[size];
     std::initializer_list<const char*>::iterator listPointer = list.begin();

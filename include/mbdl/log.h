@@ -71,6 +71,12 @@ public:
 	 */
     void clear();
 
+    /**
+	 * Prints the input to the ostream
+	 * 
+	 * @param input the input to print
+	 * @return a reference to the ostream
+	 */
     template <typename T>
     std::ostream& operator<<(T input)
     {
@@ -81,8 +87,6 @@ private:
     std::string path;
     std::fstream file;
 };
-
-extern double end[1];
 
 inline namespace serial {
     /**
