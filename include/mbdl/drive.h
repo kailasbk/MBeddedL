@@ -12,15 +12,6 @@ extern double theta;
 extern math::Vector<2> displacement;
 extern math::Vector<2> heading;
 
-/**** Drivetrain Specification Variables ****/
-extern devices::Out* left;
-extern devices::Out* right;
-extern devices::In* encoders[3];
-extern double width;
-
-/* 2x2 Transformation Matrix */
-extern math::Matrix<2, 2> transformation;
-
 /**** BUFFER MODE MACROS ****/
 #define TANK 0
 #define ARCADE 1
@@ -28,6 +19,8 @@ extern math::Matrix<2, 2> transformation;
 #define ARC 3
 #define LINE 4
 #define TO 5
+
+extern pros::Task* taskPtr;
 
 /**
  * Task for the tracking and drive control
@@ -45,9 +38,6 @@ void controlTask(void* params);
  * @param enc the array of pointers to the encoder objects
  */
 void create(double w, devices::Out* l, devices::Out* r, devices::In* enc[3]);
-
-// slew rate value: how much the motor power can change in a second
-#define SLEW_RATE 2
 
 /**
  * Sets the drivetrain using tank control

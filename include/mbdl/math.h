@@ -110,6 +110,15 @@ public:
         return data[i];
     }
 
+    operator double()
+    {
+        double sum = 0;
+        for (int i = 0; i < _size; i++) {
+            sum += std::pow(data[i], 2);
+        }
+        return std::sqrt(sum);
+    }
+
     /**
 	 * Get the size of the Vector
 	 * 

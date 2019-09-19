@@ -4,28 +4,7 @@
 #include "pros/apix.h"
 
 namespace mbdl::display {
-class Style {
-public:
-    /**
-	 * Initializes the style based on a LVGL base style
-	 * 
-	 * @param base the pointer to the base style
-	 */
-    Style(lv_style_t* base);
-
-    /**
-	 * Returns a modifiable reference to the style
-	 */
-    lv_style_t& set();
-
-    /**
-	 * Returns a non-modifiable reference to the style
-	 */
-    const lv_style_t& get();
-
-private:
-    lv_style_t data;
-};
+typedef lv_style_t Style;
 
 class Object {
 public:
@@ -77,13 +56,6 @@ public:
 	 * @param w the width of the object
 	 */
     void setWidth(std::int16_t w);
-
-    /**
-	 * Sets the style of the object
-	 * 
-	 * @param style the reference to the style pointer
-	 */
-    void setStyle(Style& style);
 
     lv_obj_t* obj;
 };
