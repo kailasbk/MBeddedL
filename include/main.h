@@ -37,6 +37,9 @@ void opcontrol(void);
 #ifdef __cplusplus
 
 #include "mbdl/api.h"
+#include "okapi/api.hpp"
+
+using namespace okapi::literals;
 
 #endif
 

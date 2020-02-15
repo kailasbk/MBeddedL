@@ -3,16 +3,23 @@
 
 #include "../api.h"
 
-#define PI 3.14159265
-
 namespace mbdl::math {
 /**
  * Scales angle in radians to equivalent angle from 0 to 2pi
  * 
  * @param angle the input angle in radians
- * @return the equivalent angle in radians
+ * @return the equivalent angle in radians in [0, 2pi)
  */
 double equiv(double angle);
+
+/**
+ * Calculates the shortest difference between two angles
+ * 
+ * @param first the first angle
+ * @param second the second angle
+ * @return the distance from the first to the second from (-pi, pi]
+ */
+double distance(double first, double second);
 
 /**
  * Converts radians to degrees
@@ -163,12 +170,46 @@ public:
     }
 
     /**
+	 * Operator for adding Matrices
+	 * 
+	 * @param other the reference to the Matrix
+	 * @return the sum of the Matrices
+	 */
+    Matrix<rows, columns> operator+(Matrix<rows, columns>& other)
+    {
+        Matrix<rows, columns> res;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                res[i][j] += other[i][j] + data[i][j];
+            }
+        }
+        return res;
+    }
+
+    /**
+	 * Operator for subtracting Matrices
+	 * 
+	 * @param other the reference to the Matrix
+	 * @return the sum of the Matrices
+	 */
+    Matrix<rows, columns> operator-(Matrix<rows, columns>& other)
+    {
+        Matrix<rows, columns> res;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                res[i][j] += other[i][j] - data[i][j];
+            }
+        }
+        return res;
+    }
+
+    /**
 	 * Operator for multiplying a Matrix by a Vector
 	 * 
-	 * @param other the const reference to the Vector
-	 * @return the Vector product of the Matrix * Vector 
+	 * @param other the reference to the Vector
+	 * @return the product of the Matrix * Vector 
 	 */
-    Vector<columns> operator*(Vector<columns>& other)
+    Vector<rows> operator*(Vector<columns>& other)
     {
         Vector<columns> vec;
         for (int i = 0; i < rows; i++) {

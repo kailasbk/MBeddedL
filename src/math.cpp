@@ -3,20 +3,35 @@
 namespace mbdl::math {
 double equiv(double angle)
 {
-    if (angle > 0) { // if angle is positive
-        return angle - (2 * PI) * ((int)angle / (2 * PI)); // return the angle minus the closest multiple of 2PI
+    if (angle > 0) {
+        while (angle >= 2 * 3.14) {
+            angle -= 2 * 3.14;
+        }
     } else {
-        return angle + (2 * PI) * ((int)(angle / (2 * PI)) + 1); // return the angle plus one more than multiple of 2PI
+        while (angle < 0) {
+            angle += 2 * 3.14;
+        }
+    }
+    return angle;
+}
+
+double distance(double first, double second)
+{
+    double error = equiv(second - first);
+    if (error <= 3.14) {
+        return error;
+    } else {
+        return error - (2 * 3.14);
     }
 }
 
 double DtoR(double angle)
 {
-    return angle * PI / 180; // return the degrees in radians
+    return angle * 3.14 / 180;
 }
 
 double RtoD(double angle)
 {
-    return angle * 180 / PI; // return the radians in degrees
+    return angle * 180 / 3.14;
 }
 }

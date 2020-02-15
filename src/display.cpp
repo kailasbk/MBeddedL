@@ -1,11 +1,6 @@
 #include "mbdl/display.h"
 
 namespace mbdl::display {
-Style::Style(lv_style_t* base)
-{
-    lv_style_copy(&data, base);
-}
-
 Object::~Object()
 {
     lv_obj_del(obj);
@@ -39,11 +34,6 @@ void Object::setHeight(std::int16_t h)
 void Object::setSize(std::int16_t w, std::int16_t h)
 {
     lv_obj_set_size(obj, w, h);
-}
-
-void Object::setStyle(Style& style)
-{
-    lv_obj_set_style(obj, &style.set());
 }
 
 Button::Button(const char text[], lv_action_t func, lv_obj_t* parent)

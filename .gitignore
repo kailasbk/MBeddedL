@@ -15,4 +15,5 @@ temp.errors
 *.ini
 .d/
 
+log/
 *.csv
