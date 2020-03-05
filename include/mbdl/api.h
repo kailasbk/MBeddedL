@@ -1,8 +1,4 @@
-#ifndef _MBDL_API_H_
-#define _MBDL_API_H_
+#pragma once
 
-#include "mbdl/display.h"
-#include "mbdl/log.h"
-#include "mbdl/math.h"
-
-#endif
+#include "mbdl/motion.h"
+#include "mbdl/config.h"
