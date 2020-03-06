@@ -1,36 +1,6 @@
 #include "main.h"
 #include "mbdl/api.h"
 
-okapi::MotorGroup arm{ 1, -2 };
-okapi::Motor tray(10, false, okapi::AbstractMotor::gearset::red, okapi::AbstractMotor::encoderUnits::degrees);
-okapi::Motor left(17);
-okapi::Motor right(-20);
-okapi::Motor strafe(-18);
-okapi::MotorGroup intake{ 5, -7 };
-
-okapi::ADIButton trayLimit('b');
-okapi::ADIButton armLimit('c');
-okapi::ADIButton autonButton('h');
-
-okapi::ChassisScales driveDimensions({ 3.25_in, 11.75_in, 5.875_in }, okapi::imev5GreenTPR);
-
-auto driveController = okapi::ChassisControllerBuilder()
-                           .withMotors(left, right, strafe)
-                           .withGains({ 0, 0, 0, .5 }, { 0, 0, 0, .5 })
-                           .withDimensions(okapi::AbstractMotor::gearset::green, driveDimensions)
-                           .withOdometry(okapi::StateMode::FRAME_TRANSFORMATION)
-                           .buildOdometry();
-
-std::shared_ptr<okapi::HDriveModel> driveModel(static_cast<okapi::HDriveModel*>(driveController->getModel().get()));
-
-auto trayController = okapi::AsyncPosControllerBuilder()
-                          .withMotor(tray)
-                          .build();
-
-auto armController = okapi::AsyncPosControllerBuilder()
-                         .withMotor(arm)
-                         .build();
-
 okapi::Controller controller;
 
 #define RED 0
@@ -51,12 +21,13 @@ void initialize()
     okapi::Logger::setDefaultLogger(
         std::make_shared<okapi::Logger>(
             okapi::TimeUtilFactory::createDefault().getTimer(),
-            "/ser/sout",
+            stdout,
             okapi::Logger::LogLevel::info));
+
     intake.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
     tray.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
     arm.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
-    //    trayController->tarePosition();
+    strafeOff();
 }
 
 void competition_initialize()
@@ -146,26 +117,17 @@ void opcontrol()
                 arm.moveVoltage(0);
             }
 
-            if (controller.getDigital(okapi::ControllerDigital::right)) {
-                strafe.moveVoltage(okapi::v5MotorMaxVoltage);
-                right.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
-                left.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
-            } else if (controller.getDigital(okapi::ControllerDigital::left)) {
-                strafe.moveVoltage(-okapi::v5MotorMaxVoltage);
-                right.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
-                left.setBrakeMode(okapi::AbstractMotor::brakeMode::hold);
-            } else if (controller.getDigital(okapi::ControllerDigital::L2)) {
+            if (controller.getDigital(okapi::ControllerDigital::L2)) {
                 strafe.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage);
                 right.moveVoltage(-controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage / 2);
                 left.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage / 2);
-
             } else {
                 right.setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
                 left.setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
-                driveModel->hArcade(
-                    -controller.getAnalog(okapi::ControllerAnalog::leftX),
+                driveModel->arcade(
                     controller.getAnalog(okapi::ControllerAnalog::leftY),
                     controller.getAnalog(okapi::ControllerAnalog::leftX));
+                strafe.moveVoltage(-controller.getAnalog(okapi::ControllerAnalog::leftX) * okapi::v5MotorMaxVoltage);
             }
         }
         timer.delay(50_Hz);

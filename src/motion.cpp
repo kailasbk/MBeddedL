@@ -1,7 +1,44 @@
 #include "mbdl/motion.h"
 
-void turntoAngle(okapi::QAngle angle)
+static void strafeTurnLoop(void* params)
 {
-    driveController->turnToAngle(angle); // turn the fowards wheels using the PID chassis controller
-        // turn the strafe wheel so that the robot turns around its sensor, while "stealing" the values
+    okapi::Rate timer;
+    while (true) {
+        strafe.moveVelocity((right.getTargetVelocity() - left.getTargetVelocity()) / 2);
+        timer.delayUntil(5_ms);
+    }
+}
+
+static pros::Task strafeTask(strafeTurnLoop);
+
+void strafeOn()
+{
+    strafeTask.resume();
+}
+
+void strafeOff()
+{
+    strafeTask.suspend();
+}
+
+void turntoAngle(okapi::QAngle angle, bool change)
+{
+    if (change) {
+        strafeTask.resume();
+    }
+    driveController->turnToAngle(angle);
+    if (change) {
+        strafeTask.suspend();
+    }
+}
+
+void driveToPoint(okapi::Point point, bool change)
+{
+    if (change) {
+        strafeTask.resume();
+    }
+    driveController->driveToPoint(point);
+    if (change) {
+        strafeTask.suspend();
+    }
 }

@@ -2,4 +2,8 @@
 
 #include "mbdl/config.h"
 
-void turnToAngle(okapi::QAngle angle);
+void strafeOn();
+void strafeOff();
+
+void turnToAngle(okapi::QAngle angle, bool change = false);
+void driveToPoint(okapi::Point point, bool change = false);

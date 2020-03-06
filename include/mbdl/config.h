@@ -1,6 +1,8 @@
 #pragma once
 
 #include "okapi/api.hpp"
+#include "pros/apix.h"
+using namespace okapi::literals;
 
 // robot motors
 extern okapi::MotorGroup arm;
@@ -17,6 +19,6 @@ extern okapi::ADIButton autonButton;
 
 // robot controllers
 extern std::shared_ptr<okapi::OdomChassisController> driveController;
-extern std::shared_ptr<okapi::HDriveModel> driveModel;
+extern std::shared_ptr<okapi::SkidSteerModel> driveModel;
 extern std::shared_ptr<okapi::AsyncPositionController<double, double>> trayController;
 extern std::shared_ptr<okapi::AsyncPositionController<double, double>> armController;
