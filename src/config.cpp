@@ -9,6 +9,7 @@ okapi::MotorGroup intake{ 5, -7 };
 
 okapi::ADIButton trayLimit('b');
 okapi::ADIButton armLimit('c');
+okapi::ADIButton allianceButton('g');
 okapi::ADIButton autonButton('h');
 
 okapi::ChassisScales driveDimensions({ 3.25_in, 11.75_in, 5.875_in }, okapi::imev5GreenTPR);
@@ -25,6 +26,7 @@ std::shared_ptr<okapi::SkidSteerModel> driveModel(static_cast<okapi::SkidSteerMo
 
 std::shared_ptr<okapi::AsyncPositionController<double, double>> trayController = okapi::AsyncPosControllerBuilder()
                                                                                      .withMotor(tray)
+                                                                                     .withGains({ .0001, 0, 0, 0 })
                                                                                      .build();
 
 std::shared_ptr<okapi::AsyncPositionController<double, double>> armController = okapi::AsyncPosControllerBuilder()

@@ -9,6 +9,11 @@ okapi::Controller controller;
 int alliance = 0;
 int auton = 0;
 
+void intakes(double power)
+{
+    intake.moveVoltage(power * okapi::v5MotorMaxVoltage);
+}
+
 void initialize()
 {
     // initialize display
@@ -32,6 +37,7 @@ void initialize()
 
 void competition_initialize()
 {
+    okapi::Rate timer;
     // turn on auton selector (using LVGL in the future)
     bool selected = false;
 
@@ -49,6 +55,8 @@ void competition_initialize()
             pros::lcd::print(1, "Auton: Nothing");
             break;
         }
+
+        timer.delay(50_Hz);
     }
 }
 
@@ -85,45 +93,62 @@ void opcontrol()
         pros::lcd::print(1, "Y: %f", driveController->getState().y.convert(okapi::inch));
         pros::lcd::print(2, "Theta: %f", driveController->getState().theta.convert(okapi::degree));
 
+        if (trayLimit.isPressed()) {
+            trayController->tarePosition();
+            pros::lcd::print(3, "Tray limit pressed");
+        } else {
+            pros::lcd::print(3, "Tray value: %f", trayController->getProcessValue());
+        }
+
+        if (armLimit.isPressed()) {
+            armController->tarePosition();
+            pros::lcd::print(4, "Arm limit pressed");
+        } else {
+            pros::lcd::print(4, "Arm value: %f", armController->getProcessValue());
+        }
+
+        pros::lcd::print(5, "tray target: %f", trayController->getTarget());
+
         if (controller.getDigital(okapi::ControllerDigital::B)) {
             trayController->flipDisable(false);
-            trayController->setMaxVelocity(50);
             trayController->setTarget(800);
             if (30 < trayController->getError() && trayController->getError() < 400) {
-                intake.moveVoltage(0.5 * okapi::v5MotorMaxVoltage);
+                intakes(0.6);
             } else if (trayController->isSettled() && controller.getAnalog(okapi::ControllerAnalog::leftY) < -.5) {
-                intake.moveVoltage(-0.6 * okapi::v5MotorMaxVoltage);
+                intakes(-0.6);
                 driveModel->arcade(-.4, 0);
             } else {
-                intake.moveVoltage(0);
+                intakes(0);
             }
         } else {
-            trayController->flipDisable(true);
-            if (controller.getDigital(okapi::ControllerDigital::R2) && tray.getPosition() > 360) {
-                intake.moveVoltage(-0.6 * okapi::v5MotorMaxVoltage);
-            } else if (controller.getDigital(okapi::ControllerDigital::R2)) {
-                intake.moveVoltage(-okapi::v5MotorMaxVoltage);
+            if (controller.getDigital(okapi::ControllerDigital::R2)) {
+                intakes(-1.0);
             } else if (controller.getDigital(okapi::ControllerDigital::R1)) {
-                intake.moveVoltage(okapi::v5MotorMaxVoltage);
+                intakes(1.0);
             } else {
-                intake.moveVoltage(0);
+                intakes(0);
+            }
+
+            if (controller.getDigital(okapi::ControllerDigital::up)) {
+                trayController->flipDisable(false);
+                trayController->setTarget(330);
+            } else if (controller.getDigital(okapi::ControllerDigital::down)) {
+                trayController->flipDisable(false);
+                trayController->setTarget(0);
+            } else if (abs(controller.getAnalog(okapi::ControllerAnalog::rightY)) > .05 && !controller.getDigital(okapi::ControllerDigital::L1)) {
+                trayController->flipDisable(true);
+                tray.controllerSet(controller.getAnalog(okapi::ControllerAnalog::rightY));
             }
 
             if (controller.getDigital(okapi::ControllerDigital::L1)) {
-                tray.moveAbsolute(330, 90);
                 arm.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightY) * okapi::v5MotorMaxVoltage);
-            } else {
-                tray.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightY) * okapi::v5MotorMaxVoltage);
-                arm.moveVoltage(0);
             }
 
             if (controller.getDigital(okapi::ControllerDigital::L2)) {
-                strafe.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage);
-                right.moveVoltage(-controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage / 2);
-                left.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightX) * okapi::v5MotorMaxVoltage / 2);
+                double power = controller.getAnalog(okapi::ControllerAnalog::leftX) * okapi::v5MotorMaxVoltage;
+                strafe.moveVoltage(power);
+                driveModel->tank(power / 2, -power / 2);
             } else {
-                right.setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
-                left.setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
                 driveModel->arcade(
                     controller.getAnalog(okapi::ControllerAnalog::leftY),
                     controller.getAnalog(okapi::ControllerAnalog::leftX));

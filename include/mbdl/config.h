@@ -15,10 +15,11 @@ extern okapi::MotorGroup intake;
 // robot adi ports
 extern okapi::ADIButton trayLimit;
 extern okapi::ADIButton armLimit;
+extern okapi::ADIButton allianceButton;
 extern okapi::ADIButton autonButton;
 
 // robot controllers
 extern std::shared_ptr<okapi::OdomChassisController> driveController;
 extern std::shared_ptr<okapi::SkidSteerModel> driveModel;
-extern std::shared_ptr<okapi::AsyncPositionController<double, double>> trayController;
+extern std::shared_ptr<okapi::AsyncPosPIDController> trayController;
 extern std::shared_ptr<okapi::AsyncPositionController<double, double>> armController;
