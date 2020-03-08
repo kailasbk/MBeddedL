@@ -32,3 +32,8 @@ std::shared_ptr<okapi::AsyncPositionController<double, double>> trayController =
 std::shared_ptr<okapi::AsyncPositionController<double, double>> armController = okapi::AsyncPosControllerBuilder()
                                                                                     .withMotor(arm)
                                                                                     .build();
+
+void intakes(double power)
+{
+    intake.moveVoltage(power * okapi::v5MotorMaxVoltage);
+}

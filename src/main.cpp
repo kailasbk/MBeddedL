@@ -3,16 +3,8 @@
 
 okapi::Controller controller;
 
-#define RED 0
-#define BLUE 1
-
 int alliance = 0;
 int auton = 0;
-
-void intakes(double power)
-{
-    intake.moveVoltage(power * okapi::v5MotorMaxVoltage);
-}
 
 void initialize()
 {
@@ -46,6 +38,8 @@ void competition_initialize()
             pros::lcd::print(0, "Alliance: Red");
         } else if (alliance == BLUE) {
             pros::lcd::print(0, "Alliance: Blue");
+        } else if (alliance == SKILLS) {
+            pros::lcd::print(0, "Alliance: Skills");
         }
 
         switch (auton) {
@@ -56,20 +50,50 @@ void competition_initialize()
             break;
         }
 
-        timer.delay(50_Hz);
+        if (autonButton.isPressed()) {
+            auton++;
+            if (auton > 0000) {
+                auton = 0;
+            }
+            while (autonButton.isPressed()) {
+                timer.delayUntil(20_ms);
+            }
+        } else if (allianceButton.isPressed()) {
+            alliance++;
+            if (alliance > 2) {
+                alliance = 0;
+            }
+            while (allianceButton.isPressed()) {
+                timer.delayUntil(20_ms);
+            }
+        }
+
+        timer.delayUntil(20_ms);
     }
 }
 
 void autonomous()
 {
-    // +x is forward, +y is right, 0 degrees along +x going counterclockwise
-    driveController->setMaxVelocity(100);
-    driveController->driveToPoint({ 3_ft, 0_ft });
-
-    driveController->setMaxVelocity(200);
-    driveController->driveToPoint({ -2_ft, 0_ft });
-
-    driveController->turnAngle({ 135_deg });
+    strafeOn();
+    if (alliance == SKILLS) {
+        autons::skills();
+    } else {
+        switch (auton) {
+        case 0:
+            autons::nothing();
+            break;
+        case 1:
+            autons::smallZone(alliance);
+            break;
+        case 2:
+            autons::bigZone(alliance);
+            break;
+        default:
+            autons::nothing();
+            break;
+        }
+    }
+    strafeOff();
 }
 
 void opcontrol()
@@ -136,12 +160,27 @@ void opcontrol()
                 trayController->flipDisable(false);
                 trayController->setTarget(0);
             } else if (abs(controller.getAnalog(okapi::ControllerAnalog::rightY)) > .05 && !controller.getDigital(okapi::ControllerDigital::L1)) {
-                trayController->flipDisable(true);
+                if (!trayController->isDisabled()) {
+                    trayController->flipDisable(true);
+                }
                 tray.controllerSet(controller.getAnalog(okapi::ControllerAnalog::rightY));
             }
 
-            if (controller.getDigital(okapi::ControllerDigital::L1)) {
-                arm.moveVoltage(controller.getAnalog(okapi::ControllerAnalog::rightY) * okapi::v5MotorMaxVoltage);
+            if (controller.getDigital(okapi::ControllerDigital::X)) {
+                trayController->flipDisable(false);
+                trayController->setTarget(330);
+                armController->flipDisable(false);
+                armController->setTarget(0000);
+            } else if (controller.getDigital(okapi::ControllerDigital::Y)) {
+                trayController->flipDisable(false);
+                trayController->setTarget(330);
+                armController->flipDisable(false);
+                armController->setTarget(0000);
+            } else if (controller.getDigital(okapi::ControllerDigital::L1)) {
+                if (!armController->isDisabled()) {
+                    armController->flipDisable(true);
+                }
+                tray.controllerSet(controller.getAnalog(okapi::ControllerAnalog::rightY));
             }
 
             if (controller.getDigital(okapi::ControllerDigital::L2)) {
@@ -152,7 +191,7 @@ void opcontrol()
                 driveModel->arcade(
                     controller.getAnalog(okapi::ControllerAnalog::leftY),
                     controller.getAnalog(okapi::ControllerAnalog::leftX));
-                strafe.moveVoltage(-controller.getAnalog(okapi::ControllerAnalog::leftX) * okapi::v5MotorMaxVoltage);
+                strafe.moveVoltage((right.getVoltage - left.getVoltage()) / 2);
             }
         }
         timer.delay(50_Hz);

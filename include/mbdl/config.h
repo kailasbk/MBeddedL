@@ -21,5 +21,7 @@ extern okapi::ADIButton autonButton;
 // robot controllers
 extern std::shared_ptr<okapi::OdomChassisController> driveController;
 extern std::shared_ptr<okapi::SkidSteerModel> driveModel;
-extern std::shared_ptr<okapi::AsyncPosPIDController> trayController;
+extern std::shared_ptr<okapi::AsyncPositionController<double, double>> trayController;
 extern std::shared_ptr<okapi::AsyncPositionController<double, double>> armController;
+
+void intakes(double power);

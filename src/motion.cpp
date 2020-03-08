@@ -5,7 +5,7 @@ static void strafeTurnLoop(void* params)
     okapi::Rate timer;
     while (true) {
         strafe.moveVelocity((right.getTargetVelocity() - left.getTargetVelocity()) / 2);
-        timer.delayUntil(5_ms);
+        timer.delay(100_Hz);
     }
 }
 
@@ -19,26 +19,15 @@ void strafeOn()
 void strafeOff()
 {
     strafeTask.suspend();
+    strafe.moveVoltage(0);
 }
 
-void turntoAngle(okapi::QAngle angle, bool change)
+void turntoAngle(okapi::QAngle angle)
 {
-    if (change) {
-        strafeTask.resume();
-    }
     driveController->turnToAngle(angle);
-    if (change) {
-        strafeTask.suspend();
-    }
 }
 
-void driveToPoint(okapi::Point point, bool change)
+void driveToPoint(okapi::Point point, bool backwards)
 {
-    if (change) {
-        strafeTask.resume();
-    }
-    driveController->driveToPoint(point);
-    if (change) {
-        strafeTask.suspend();
-    }
+    driveController->driveToPoint(point, backwards);
 }
